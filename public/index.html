@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en" x-data="{ darkMode: localStorage.getItem('darkMode') === 'true' }" :class="{ 'dark': darkMode }">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cardily - Learn & Master</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+</head>
+
+<body x-data="appData()" @keydown.escape="closeModal()">
+
+    <!-- Top Navbar -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="navbar-left">
+                <div class="logo">
+                    <!-- <img 
+                      :src="darkMode 
+                        ? 'logo-rodrigo-dark.png' 
+                        : 'logo-rodrigo.png'" 
+                      alt="Cardily Logo" 
+                      class="logo-img" /> -->
+                        <i class="fas fa-cube"></i>
+                        <span>Cardily</span>
+                </div>
+            </div>
+            <div class="navbar-right">
+                <button @click="darkMode = !darkMode; localStorage.setItem('darkMode', darkMode)" class="theme-toggle">
+                    <i :class="darkMode ? 'fas fa-sun' : 'fas fa-moon'"></i>
+                </button>
+                <div class="user-info">
+                    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
+                        alt="User Avatar" class="user-avatar" />
+                    <span class="user-name">Flexinz</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" :class="{ 'sidebar-open': sidebarOpen }">
+            <div class="sidebar-user">
+                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=60&h=60&fit=crop&crop=face"
+                    alt="User Avatar" class="sidebar-avatar" />
+                <div class="sidebar-user-info">
+                    <h3>Flexinz</h3>
+                    <span class="user-level">Level 12</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>Cursos</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-book"></i>
+                    <span>Módulos</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-route"></i>
+                    <span>Trilhas</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-flask"></i>
+                    <span>Experimental</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="#" class="footer-link">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Invite Friends</span>
+                </a>
+                <a href="#" class="footer-link">
+                    <i class="fas fa-user-cog"></i>
+                    <span>My Account</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Mobile Menu Toggle -->
+        <button class="mobile-menu-toggle" @click="sidebarOpen = !sidebarOpen">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="dashboard">
+                <h1 class="dashboard-title">Dashboard</h1>
+
+                <!-- Progress Indicators -->
+                <div class="progress-section">
+                    <!-- existing progress cards... -->
+                </div>
+
+                <!-- Welcome Card centered with rounded shadow -->
+                <div class="welcome-card"
+                     style="margin: 2rem auto; max-width: 600px; padding: 1.5rem; background: var(--surface); border-radius: 16px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);">
+                    <h2 style="text-align: center; margin-bottom: 0.5rem;">Olá, Flexinz! Pronto para revisar hoje?</h2>
+                    <p class="welcome-subtitle" style="text-align: center; margin-bottom: 1rem;">
+                        Você tem <span x-text="flashcardsCount"></span> flashcards aguardando revisão
+                    </p>
+                    <div class="welcome-body" style="text-align: center; margin-bottom: 1.5rem;margin: 2rem auto; max-width: 600px; padding: 1.5rem; background: var(--surface-outro); border-radius: 16px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);">
+                        <p>Continue sua jornada rumo à aprovação. Cada revisão te deixa mais próximo do seu objetivo!</p>
+                        <button class="btn btn-primary" x-on:click="startReview()" style="margin-top: 1rem;">
+                            Começar Revisão →
+                        </button>
+                    </div>
+                    <div class="welcome-footer" style="display: flex; justify-content: space-around;">
+                        <div style="text-align: center;">
+                            <span x-text="consecutiveDays" style="font-size: 1.25rem; color: var(--primary-color);"></span>
+                            <small>Dias consecutivos</small>
+                        </div>
+                        <div style="text-align: center;">
+                            <span x-text="cardsReviewed" style="font-size: 1.25rem; color: var(--primary-color);"></span>
+                            <small>Cards revisados</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Course Cards -->
+                <div class="courses-section">
+                    <h2>Seus Cursos</h2>
+                    <div class="search-container">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" placeholder="Search courses, topics..." class="search-input" />
+                    </div>
+                    <div class="courses-grid" hx-get="/api/courses" hx-trigger="load" hx-target="this" hx-swap="innerHTML">
+                        <div class="loading">Loading courses...</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Flashcard Modal -->
+    <div x-show="showModal" @click.self="closeModal()" class="modal-overlay"
+        x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+        <div class="modal-content" x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 transform scale-95"
+            x-transition:enter-end="opacity-100 transform scale-100"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100 transform scale-100"
+            x-transition:leave-end="opacity-0 transform scale-95">
+            <!-- existing flashcard structure... -->
+        <<div class="modal-header">
+            <h2 x-text="currentCourse?.title">Course Title</h2>
+            <button @click="closeModal()" class="modal-close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="flashcard-container">
+            <div class="flashcard-counter">
+                <span x-text="currentQuestionIndex + 1">1</span> /
+                <span x-text="flashcards.length">10</span>
+            </div>
+
+            <div class="flashcard" :class="{ 'flipped': cardFlipped }" @click="flipCard()">
+                <div class="flashcard-front glassDiv">
+                    <div class="card-label">Question</div>
+                    <div class="card-content" x-text="currentFlashcard?.question">
+                        Loading question...
+                    </div>
+                </div>
+                <div class="flashcard-back">
+                    <div class="card-label">Answer</div>
+                    <div class="card-content" x-text="currentFlashcard?.answer">
+                        Loading answer...
+                    </div>
+                </div>
+            </div>
+
+            <div class="flashcard-controls">
+                <button @click="previousCard()" :disabled="currentQuestionIndex === 0" class="btn btn-secondary">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </button>
+
+                <button @click="flipCard()" class="btn btn-primary">
+                    <i class="fas fa-sync-alt"></i> Flip Card
+                </button>
+
+                <button @click="nextCard()" :disabled="currentQuestionIndex === flashcards.length - 1"
+                    class="btn btn-secondary">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    
+
+    <script src="app.js"></script>
+</body>
+
+</html>
