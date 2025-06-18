@@ -1,6 +1,6 @@
-def handler(request, context):
+# api/hello.py
+def handler(event, context):
     return {
         "statusCode": 200,
-        "headers": { "Content-Type": "application/json" },
-        "body": '{"message":"✅ Vercel reconheceu sua função Python!"}'
+        "body": "✅ OK"
     }
