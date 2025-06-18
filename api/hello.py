@@ -1,6 +1,8 @@
 # api/hello.py
-def handler(event, context):
-    return {
-        "statusCode": 200,
-        "body": "✅ OK"
-    }
+from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get("/")
+async def hello():
+    return {"message":"✅ Vercel + FastAPI OK!"}
