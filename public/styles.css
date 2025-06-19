@@ -13,6 +13,7 @@
     --sidebar-bg: #3457F3;
     --sidebar-text: #a0aec0;
     --sidebar-hover: #5483ff;
+    --vh: 1vh;
 }
 
 /* === Logo na Navbar === */
@@ -164,6 +165,7 @@ body {
     display: flex;
     margin-top: 60px;
     min-height: calc(100vh - 60px);
+    min-height: calc((var(--vh, 1vh) * 100) - 60px);
 }
 
 /* Sidebar */
@@ -176,6 +178,7 @@ body {
     flex-direction: column;
     position: fixed;
     height: calc(100vh - 60px);
+    height: calc((var(--vh, 1vh) * 100) - 60px);
     left: 0;
     top: 60px;
     overflow-y: auto;
@@ -735,3 +738,141 @@ body {
       height: 200px;
     }
   }
+
+/* Safari-specific fixes */
+@supports (-webkit-touch-callout: none) {
+    /* iOS Safari specific styles */
+    body {
+        -webkit-text-size-adjust: 100%;
+        -webkit-font-smoothing: antialiased;
+    }
+    
+    /* Fix for iOS Safari viewport height issues */
+    .app-container {
+        min-height: -webkit-fill-available;
+    }
+    
+    /* Fix for iOS Safari fixed positioning */
+    .navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 60px;
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        z-index: 1000;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+    
+    /* Fix for iOS Safari sidebar */
+    .sidebar {
+        position: fixed;
+        top: 60px;
+        left: 0;
+        height: calc(100vh - 60px);
+        height: calc(-webkit-fill-available - 60px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Fix for iOS Safari modal */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* Fix for iOS Safari 100vh issue */
+@supports (-webkit-touch-callout: none) {
+    .app-container {
+        min-height: -webkit-fill-available;
+    }
+    
+    .sidebar {
+        height: calc(-webkit-fill-available - 60px);
+    }
+}
+
+/* Additional mobile optimizations */
+@media (max-width: 768px) {
+    /* Prevent horizontal scrolling */
+    body {
+        overflow-x: hidden;
+        width: 100%;
+    }
+    
+    /* Fix for iOS Safari input zoom */
+    .search-input {
+        font-size: 16px;
+    }
+    
+    /* Improve touch targets */
+    .nav-item,
+    .footer-link,
+    .btn {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Fix for iOS Safari flexbox issues */
+    .navbar-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 0 1rem;
+    }
+    
+    /* Ensure proper stacking context */
+    .mobile-menu-toggle {
+        z-index: 1001;
+        position: fixed;
+        top: 70px;
+        left: 1rem;
+    }
+    
+    /* Fix for iOS Safari transform issues */
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        will-change: transform;
+    }
+    
+    .sidebar-open {
+        transform: translateX(0);
+    }
+}
+
+/* Fix for iOS Safari safe areas */
+@supports (padding: max(0px)) {
+    .navbar {
+        padding-left: max(1rem, env(safe-area-inset-left));
+        padding-right: max(1rem, env(safe-area-inset-right));
+    }
+    
+    .main-content {
+        padding-left: max(2rem, env(safe-area-inset-left));
+        padding-right: max(2rem, env(safe-area-inset-right));
+    }
+}
+
+/* Fix for iOS Safari backdrop-filter */
+@supports (-webkit-backdrop-filter: blur(10px)) {
+    .navbar {
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+    }
+}

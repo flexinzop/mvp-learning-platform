@@ -13,7 +13,43 @@ function appData() {
         flashcardsCount: 15,      // pode vir de uma fetch / API
         consecutiveDays: 7,       // você que popula dinamicamente
         cardsReviewed: 342,
+        
+        // Add mobile detection
+        isMobile: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent),
+        isIOS: /iPad|iPhone|iPod/.test(navigator.userAgent),
+        
+        // Initialize mobile-specific behaviors
+        init() {
+            this.$nextTick(() => {
+                this.handleMobileBehaviors();
+            });
+        },
+        
+        handleMobileBehaviors() {
+            // Fix for iOS Safari viewport height
+            if (this.isIOS) {
+                const setVH = () => {
+                    const vh = window.innerHeight * 0.01;
+                    document.documentElement.style.setProperty('--vh', `${vh}px`);
+                };
+                
+                setVH();
+                window.addEventListener('resize', setVH);
+                window.addEventListener('orientationchange', setVH);
+            }
             
+            // Close sidebar when clicking outside on mobile
+            if (this.isMobile) {
+                document.addEventListener('click', (e) => {
+                    if (this.sidebarOpen && 
+                        !e.target.closest('.sidebar') && 
+                        !e.target.closest('.mobile-menu-toggle')) {
+                        this.sidebarOpen = false;
+                    }
+                });
+            }
+        },
+        
         get currentFlashcard() {
             return this.flashcards[this.currentQuestionIndex];
         },
