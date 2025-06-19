@@ -495,8 +495,8 @@ body {
   
   /* Footer com estatísticas */
   .welcome-footer {
-    display: flex;
-    justify-content: space-around;
+    min-width: 80px;
+    text-align: center;
   }
   .welcome-footer div {
     text-align: center;
