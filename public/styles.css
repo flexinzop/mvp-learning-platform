@@ -495,10 +495,12 @@ body {
   
   /* Footer com estatísticas */
   .welcome-footer {
-    min-width: 80px;
-    text-align: center;
+    display: flex;
+    justify-content: space-around;
   }
   .welcome-footer div {
+    text-align: center;
+    min-width: 80px;
     text-align: center;
   }
   .welcome-footer span {
