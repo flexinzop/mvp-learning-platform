@@ -14,6 +14,12 @@ function appData() {
         consecutiveDays: 7,       // você que popula dinamicamente
         cardsReviewed: 342,
         currentPage: 'dashboard', // Track current page
+        summaryStats: {
+            cards_reviewed: 342,
+            consecutive_days: 7,
+            accuracy_rate: 73,
+            pending_cards: 15
+        },
         
         // Add mobile detection
         isMobile: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent),
@@ -126,9 +132,9 @@ function appData() {
                     { question: "Todas as entidades civis ou comerciais sob controle acionário do Estado são consideradas empresas estatais.", answer: "✅ Certo. O conceito de empresas estatais abrange empresas públicas, sociedades de economia mista, suas subsidiárias e demais sociedades controladas pelo Estado." }
                 ],
                 3: [
-                    { question: "What is the OSI Model?", answer: "The OSI (Open Systems Interconnection) model is a conceptual framework that describes network communication in seven layers." },
-                    { question: "What is TCP/IP?", answer: "TCP/IP is a suite of communication protocols used to interconnect network devices on the internet and private networks." },
-                    { question: "What is DNS?", answer: "DNS (Domain Name System) is a hierarchical naming system that translates human-readable domain names into IP addresses." }
+                    { question: "As concessões de serviços públicos podem ser classificadas apenas como concessão comum e concessão especial (PPP).", answer: "❌ Errado: Além das concessões comuns e especiais (PPPs), há regimes jurídicos específicos para setores como transporte aéreo, radiodifusão, portos e telecomunicações, conforme normas setoriais aplicáveis." },
+                    { question: "A desconsideração da personalidade jurídica pode ser aplicada caso ela seja um obstáculo ao ressarcimento de prejuízos ambientais.", answer: "✅ Correto. Nos termos do artigo 4º da Lei nº 9.605/1998, a desconsideração da personalidade jurídica é possível quando esta representar um obstáculo ao ressarcimento de prejuízos causados à qualidade do meio ambiente." },
+                    { question: "Como funcionam as ordens e classes no sistema de numeração decimal?", answer: "No sistema de numeração decimal, cada algarismo representa uma ordem, começando da direita para a esquerda, e a cada três ordens temos uma classe. Por exemplo:Unidade de milhar, dezena de milhar, centena de milhar formam a classe dos Milhares.Unidade de milhão, dezena de milhão, centena de milhão formam a classe dos Milhões." }
                 ]
             };
             
@@ -186,90 +192,109 @@ function appData() {
             });
         },
 
-        initCharts() {
-            // Course Completion Pie Chart
-            this.initPieChart();
+        async initCharts() {
+            // Load summary stats
+            await this.loadSummaryStats();
             
-            // Monthly Access Bar Chart
-            this.initBarChart();
+            // Initialize Chart.js charts
+            await this.initPieChart();
+            await this.initBarChart();
         },
 
-        initPieChart() {
-            const canvas = document.getElementById('courseCompletionChart');
-            if (!canvas) return;
-            
-            const ctx = canvas.getContext('2d');
-            const data = [
-                { label: 'PCDF', value: 75, color: '#FF6B6B' },
-                { label: 'Delegado PF', value: 60, color: '#4ECDC4' },
-                { label: 'SEFAZ/GO', value: 85, color: '#45B7D1' }
-            ];
-            
-            const total = data.reduce((sum, item) => sum + item.value, 0);
-            let currentAngle = 0;
-            
-            data.forEach(item => {
-                const sliceAngle = (item.value / total) * 2 * Math.PI;
-                
-                ctx.beginPath();
-                ctx.moveTo(150, 150);
-                ctx.arc(150, 150, 100, currentAngle, currentAngle + sliceAngle);
-                ctx.closePath();
-                ctx.fillStyle = item.color;
-                ctx.fill();
-                
-                currentAngle += sliceAngle;
-            });
+        async loadSummaryStats() {
+            try {
+                const response = await fetch('/api/charts/summary-stats');
+                const data = await response.json();
+                this.summaryStats = data;
+            } catch (error) {
+                console.error('Error loading summary stats:', error);
+            }
         },
 
-        initBarChart() {
-            const canvas = document.getElementById('monthlyAccessChart');
-            if (!canvas) return;
-            
-            const ctx = canvas.getContext('2d');
-            const data = [
-                { month: 'Jan', access: 45 },
-                { month: 'Fev', access: 52 },
-                { month: 'Mar', access: 38 },
-                { month: 'Abr', access: 67 },
-                { month: 'Mai', access: 73 },
-                { month: 'Jun', access: 89 },
-                { month: 'Jul', access: 95 },
-                { month: 'Ago', access: 82 },
-                { month: 'Set', access: 78 },
-                { month: 'Out', access: 91 },
-                { month: 'Nov', access: 104 },
-                { month: 'Dez', access: 87 }
-            ];
-            
-            const maxValue = Math.max(...data.map(d => d.access));
-            const barWidth = 25;
-            const barSpacing = 10;
-            const chartHeight = 200;
-            const chartWidth = data.length * (barWidth + barSpacing);
-            const startX = 50;
-            const startY = 250;
-            
-            // Draw bars
-            data.forEach((item, index) => {
-                const x = startX + index * (barWidth + barSpacing);
-                const height = (item.access / maxValue) * chartHeight;
-                const y = startY - height;
+        async initPieChart() {
+            try {
+                const response = await fetch('/api/charts/pie-chart');
+                const chartConfig = await response.json();
                 
-                // Bar
-                ctx.fillStyle = '#3457F3';
-                ctx.fillRect(x, y, barWidth, height);
+                const chartContainer = document.getElementById('courseCompletionChart');
+                if (!chartContainer) return;
                 
-                // Value label
-                ctx.fillStyle = '#2d3748';
-                ctx.font = '12px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText(item.access, x + barWidth/2, y - 5);
+                // Clear container and create canvas with appropriate height
+                chartContainer.innerHTML = '<canvas id="pieChartCanvas" style="height: 330px !important; max-width: 100%;"></canvas>';
+                const canvas = document.getElementById('pieChartCanvas');
                 
-                // Month label
-                ctx.fillText(item.month, x + barWidth/2, startY + 15);
-            });
-        }
+                if (canvas) {
+                    new Chart(canvas, {
+                        type: chartConfig.type,
+                        data: chartConfig.data,
+                        options: {
+                            ...chartConfig.options,
+                            plugins: {
+                                ...chartConfig.options.plugins,
+                                tooltip: {
+                                    ...chartConfig.options.plugins.tooltip,
+                                    callbacks: {
+                                        label: function(context) {
+                                            return `${context.label}: ${context.parsed}%`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading pie chart:', error);
+                const chartContainer = document.getElementById('courseCompletionChart');
+                if (chartContainer) {
+                    chartContainer.innerHTML = '<div class="chart-error">Failed to load chart</div>';
+                }
+            }
+        },
+
+        async initBarChart() {
+            try {
+                const response = await fetch('/api/charts/bar-chart');
+                const chartConfig = await response.json();
+                
+                const chartContainer = document.getElementById('monthlyAccessChart');
+                if (!chartContainer) return;
+                
+                // Clear container and create canvas with appropriate height
+                chartContainer.innerHTML = '<canvas id="barChartCanvas" style="height: 380px !important; max-width: 100%;"></canvas>';
+                const canvas = document.getElementById('barChartCanvas');
+                
+                if (canvas) {
+                    new Chart(canvas, {
+                        type: chartConfig.type,
+                        data: chartConfig.data,
+                        options: {
+                            ...chartConfig.options,
+                            plugins: {
+                                ...chartConfig.options.plugins,
+                                tooltip: {
+                                    ...chartConfig.options.plugins.tooltip,
+                                    callbacks: {
+                                        label: function(context) {
+                                            return `Acessos: ${context.parsed.y}`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading bar chart:', error);
+                const chartContainer = document.getElementById('monthlyAccessChart');
+                if (chartContainer) {
+                    chartContainer.innerHTML = '<div class="chart-error">Failed to load chart</div>';
+                }
+            }
+        },
+
+        // Chart.js is now handling all chart rendering
+        // Removed HTML fallback functions since Chart.js provides better interactivity
     };
 }
 

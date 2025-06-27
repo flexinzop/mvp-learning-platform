@@ -9,6 +9,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body x-data="appData()" @keydown.escape="closeModal()">
@@ -170,21 +171,7 @@
                     <div class="stats-card">
                         <h3>Progresso dos Cursos</h3>
                         <div class="pie-chart-container">
-                            <canvas id="courseCompletionChart" width="300" height="300"></canvas>
-                        </div>
-                        <div class="chart-legend">
-                            <div class="legend-item">
-                                <span class="legend-color" style="background: #FF6B6B;"></span>
-                                <span>PCDF - 75%</span>
-                            </div>
-                            <div class="legend-item">
-                                <span class="legend-color" style="background: #4ECDC4;"></span>
-                                <span>Delegado PF - 60%</span>
-                            </div>
-                            <div class="legend-item">
-                                <span class="legend-color" style="background: #45B7D1;"></span>
-                                <span>SEFAZ/GO - 85%</span>
-                            </div>
+                            <div id="courseCompletionChart"></div>
                         </div>
                     </div>
 
@@ -192,7 +179,7 @@
                     <div class="stats-card">
                         <h3>Acesso Mensal aos Flashcards</h3>
                         <div class="bar-chart-container">
-                            <canvas id="monthlyAccessChart" width="400" height="300"></canvas>
+                            <div id="monthlyAccessChart"></div>
                         </div>
                     </div>
 
@@ -201,19 +188,19 @@
                         <h3>Resumo Geral</h3>
                         <div class="summary-stats">
                             <div class="stat-item">
-                                <div class="stat-number">342</div>
+                                <div class="stat-number" x-text="summaryStats.cards_reviewed">342</div>
                                 <div class="stat-label">Cards Revisados</div>
                             </div>
                             <div class="stat-item">
-                                <div class="stat-number">7</div>
+                                <div class="stat-number" x-text="summaryStats.consecutive_days">7</div>
                                 <div class="stat-label">Dias Consecutivos</div>
                             </div>
                             <div class="stat-item">
-                                <div class="stat-number">73%</div>
+                                <div class="stat-number" x-text="summaryStats.accuracy_rate + '%'">73%</div>
                                 <div class="stat-label">Taxa de Acerto</div>
                             </div>
                             <div class="stat-item">
-                                <div class="stat-number">15</div>
+                                <div class="stat-number" x-text="summaryStats.pending_cards">15</div>
                                 <div class="stat-label">Cards Pendentes</div>
                             </div>
                         </div>
@@ -280,6 +267,7 @@
         </div>
     
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="app.js"></script>
 </body>
 
