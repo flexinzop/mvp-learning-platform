@@ -48,6 +48,46 @@ function appData() {
                     }
                 });
             }
+
+            // Handle responsive progress bars
+            this.handleResponsiveProgressBars();
+        },
+        
+        handleResponsiveProgressBars() {
+            const progressBars = document.querySelectorAll('.progress-bar-vertical .progress-fill');
+            
+            const updateProgressBars = () => {
+                const isMobile = window.innerWidth <= 768;
+                
+                progressBars.forEach(bar => {
+                    const currentHeight = bar.style.height;
+                    const currentWidth = bar.style.width;
+                    
+                    if (isMobile) {
+                        // Convert to horizontal (width-based)
+                        if (currentHeight && !currentWidth) {
+                            bar.style.width = currentHeight;
+                            bar.style.height = '100%';
+                            bar.style.bottom = 'auto';
+                            bar.style.left = '0';
+                        }
+                    } else {
+                        // Convert to vertical (height-based)
+                        if (currentWidth && !currentHeight) {
+                            bar.style.height = currentWidth;
+                            bar.style.width = '100%';
+                            bar.style.left = 'auto';
+                            bar.style.bottom = '0';
+                        }
+                    }
+                });
+            };
+
+            // Initial update
+            updateProgressBars();
+            
+            // Update on resize
+            window.addEventListener('resize', updateProgressBars);
         },
         
         get currentFlashcard() {
@@ -250,6 +290,20 @@ function openCourseModal(courseId, courseTitle) {
 // HTMX configuration
 document.addEventListener('htmx:configRequest', function(evt) {
     evt.detail.headers['X-Requested-With'] = 'XMLHttpRequest';
+});
+
+// Handle HTMX after content load to update progress bars
+document.addEventListener('htmx:afterRequest', function(evt) {
+    // Update progress bars for newly loaded content
+    setTimeout(() => {
+        const appElement = document.querySelector('[x-data*="appData"]');
+        if (appElement && appElement._x_dataStack) {
+            const alpineData = appElement._x_dataStack[0];
+            if (alpineData.handleResponsiveProgressBars) {
+                alpineData.handleResponsiveProgressBars();
+            }
+        }
+    }, 100);
 });
 
 // Handle HTMX errors

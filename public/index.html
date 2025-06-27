@@ -15,6 +15,9 @@
 
     <!-- Top Navbar -->
     <nav class="navbar">
+        <button class="mobile-menu-toggle" @click="sidebarOpen = !sidebarOpen"> 
+            <i class="fas fa-bars"></i>
+        </button>
         <div class="navbar-content">
             <div class="navbar-left">
                 <div class="logo">
@@ -28,6 +31,9 @@
                         <span>Cardily</span>
                 </div>
             </div>
+            <!-- <button class="mobile-menu-toggle" @click="sidebarOpen = !sidebarOpen">
+                <i class="fas fa-bars"></i>
+            </button> -->
             <div class="navbar-right">
                 <button @click="darkMode = !darkMode; localStorage.setItem('darkMode', darkMode)" class="theme-toggle">
                     <i :class="darkMode ? 'fas fa-sun' : 'fas fa-moon'"></i>
@@ -42,10 +48,6 @@
     </nav>
 
     <div class="app-container">
-        <!-- Mobile Menu Toggle -->
-        <button class="mobile-menu-toggle" @click="sidebarOpen = !sidebarOpen">
-            <i class="fas fa-bars"></i>
-        </button>
         <!-- Sidebar -->
         <aside class="sidebar" :class="{ 'sidebar-open': sidebarOpen }">
             <div class="sidebar-user">
@@ -64,7 +66,7 @@
                 </a>
                 <a href="#" class="nav-item">
                     <i class="fas fa-graduation-cap"></i>
-                    <span>Cursos</span>
+                    <span>Meus Cursos</span>
                 </a>
                 <a href="#" class="nav-item">
                     <i class="fas fa-book"></i>
@@ -76,7 +78,7 @@
                 </a>
                 <a href="#" class="nav-item">
                     <i class="fas fa-flask"></i>
-                    <span>Experimental</span>
+                    <span>Estatísticas</span>
                 </a>
             </nav>
 
