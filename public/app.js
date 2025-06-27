@@ -13,6 +13,7 @@ function appData() {
         flashcardsCount: 15,      // pode vir de uma fetch / API
         consecutiveDays: 7,       // você que popula dinamicamente
         cardsReviewed: 342,
+        currentPage: 'dashboard', // Track current page
         
         // Add mobile detection
         isMobile: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent),
@@ -115,14 +116,14 @@ function appData() {
             // Simulate API call
             const flashcardData = {
                 1: [
-                    { question: "What is SQL Injection?", answer: "SQL injection is a code injection technique that exploits vulnerabilities in an application's software by inserting malicious SQL statements into entry fields." },
-                    { question: "What is Cross-Site Scripting (XSS)?", answer: "XSS is a security vulnerability that allows attackers to inject malicious scripts into web pages viewed by other users." },
-                    { question: "What is a Buffer Overflow?", answer: "A buffer overflow occurs when a program writes more data to a buffer than it can hold, potentially allowing attackers to execute arbitrary code." }
+                    { question: "O que se exige na compreensão textual?", answer: "Na compreensão textual, exige-se a capacidade de identificar informações explícitas no texto." },
+                    { question: "O que se exige na interpretação textual?", answer: "Na interpretação textual, exige-se a depreensão de conhecimentos extraídos a partir dos elementos presentes no texto, utilizando uma série de procedimentos analíticos." },
+                    { question: "Quais são os tipos de texto?", answer: "Um texto pode ser verbal ou não verbal. O texto verbal tem duas manifestações: oralidade e escrita. Na escrita, predomina a prosa e o poema. No texto não verbal, abrangem-se conhecimentos sobre linguagem corporal, cores, formas gráficas, etc. Se unir texto verbal e não verbal, temos um texto misto." }
                 ],
                 2: [
-                    { question: "What is a Firewall?", answer: "A firewall is a network security device that monitors and filters incoming and outgoing network traffic based on predetermined security rules." },
-                    { question: "What is Intrusion Detection System (IDS)?", answer: "An IDS is a security tool that monitors network traffic and system activities for malicious activity or policy violations." },
-                    { question: "What is Endpoint Detection and Response (EDR)?", answer: "EDR is a cybersecurity solution that monitors endpoint devices to detect and respond to cyber threats." }
+                    { question: "É possível a execução da pena restritiva de direitos antes do trânsito em julgado da condenação.", answer: "❌ Errado: Não é possível a execução da pena restritiva de direitos antes do trânsito em julgado da condenação. STJ. 3ª Seção. EREsp 1.619.087-SC, Rel. para acórdão Min. Jorge Mussi, julgado em 14/6/2017 (Info 609)." },
+                    { question: "O que é a interpretação jurídica ou hermenêutica clássica?", answer: "Errado: ❌ A interpretação jurídica ou hermenêutica clássica encara a Constituição como as demais leis, utilizando elementos tradicionais como gramática, lógica, sistemática e histórica para descobrir o verdadeiro significado e sentido da norma." },
+                    { question: "Todas as entidades civis ou comerciais sob controle acionário do Estado são consideradas empresas estatais.", answer: "✅ Certo. O conceito de empresas estatais abrange empresas públicas, sociedades de economia mista, suas subsidiárias e demais sociedades controladas pelo Estado." }
                 ],
                 3: [
                     { question: "What is the OSI Model?", answer: "The OSI (Open Systems Interconnection) model is a conceptual framework that describes network communication in seven layers." },
@@ -150,6 +151,124 @@ function appData() {
                 this.currentQuestionIndex--;
                 this.cardFlipped = false;
             }
+        },
+
+        startReview() {
+            // Start review with the first available course (or a default course)
+            // You can modify this to use a specific course or get from user preferences
+            const defaultCourseId = 1;
+            const defaultCourseTitle = "Agente Administrativo da Polícia Civil do Distrito Federal - PCDF";
+            
+            this.openModal(defaultCourseId, defaultCourseTitle);
+        },
+
+        goToFlashcards() {
+            // Navigate to flashcards page
+            this.currentPage = 'flashcards';
+            this.sidebarOpen = false; // Close sidebar on mobile
+            
+            // Don't auto-trigger review - let user choose from course grid
+            // The course grid will load via HTMX and users can click on courses
+        },
+
+        goToDashboard() {
+            this.currentPage = 'dashboard';
+            this.sidebarOpen = false;
+        },
+
+        goToStatistics() {
+            this.currentPage = 'statistics';
+            this.sidebarOpen = false;
+            
+            // Initialize charts after page transition
+            this.$nextTick(() => {
+                this.initCharts();
+            });
+        },
+
+        initCharts() {
+            // Course Completion Pie Chart
+            this.initPieChart();
+            
+            // Monthly Access Bar Chart
+            this.initBarChart();
+        },
+
+        initPieChart() {
+            const canvas = document.getElementById('courseCompletionChart');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const data = [
+                { label: 'PCDF', value: 75, color: '#FF6B6B' },
+                { label: 'Delegado PF', value: 60, color: '#4ECDC4' },
+                { label: 'SEFAZ/GO', value: 85, color: '#45B7D1' }
+            ];
+            
+            const total = data.reduce((sum, item) => sum + item.value, 0);
+            let currentAngle = 0;
+            
+            data.forEach(item => {
+                const sliceAngle = (item.value / total) * 2 * Math.PI;
+                
+                ctx.beginPath();
+                ctx.moveTo(150, 150);
+                ctx.arc(150, 150, 100, currentAngle, currentAngle + sliceAngle);
+                ctx.closePath();
+                ctx.fillStyle = item.color;
+                ctx.fill();
+                
+                currentAngle += sliceAngle;
+            });
+        },
+
+        initBarChart() {
+            const canvas = document.getElementById('monthlyAccessChart');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const data = [
+                { month: 'Jan', access: 45 },
+                { month: 'Fev', access: 52 },
+                { month: 'Mar', access: 38 },
+                { month: 'Abr', access: 67 },
+                { month: 'Mai', access: 73 },
+                { month: 'Jun', access: 89 },
+                { month: 'Jul', access: 95 },
+                { month: 'Ago', access: 82 },
+                { month: 'Set', access: 78 },
+                { month: 'Out', access: 91 },
+                { month: 'Nov', access: 104 },
+                { month: 'Dez', access: 87 }
+            ];
+            
+            const maxValue = Math.max(...data.map(d => d.access));
+            const barWidth = 25;
+            const barSpacing = 10;
+            const chartHeight = 200;
+            const chartWidth = data.length * (barWidth + barSpacing);
+            const startX = 50;
+            const startY = 250;
+            
+            // Draw bars
+            data.forEach((item, index) => {
+                const x = startX + index * (barWidth + barSpacing);
+                const height = (item.access / maxValue) * chartHeight;
+                const y = startY - height;
+                
+                // Bar
+                ctx.fillStyle = '#3457F3';
+                ctx.fillRect(x, y, barWidth, height);
+                
+                // Value label
+                ctx.fillStyle = '#2d3748';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(item.access, x + barWidth/2, y - 5);
+                
+                // Month label
+                ctx.fillText(item.month, x + barWidth/2, startY + 15);
+            });
         }
     };
 }
@@ -161,11 +280,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const coursesGrid = document.querySelector('.courses-grid');
         if (coursesGrid && coursesGrid.innerHTML.includes('Loading courses...')) {
             coursesGrid.innerHTML = `
-                <div class="course-card" onclick="openCourseModal(1, 'Web Application Security')">
-                    <img src="https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=400&h=200&fit=crop" alt="Web Security" class="course-thumbnail">
+                <div class="course-card" onclick="openCourseModal(1, 'AGENTE ADMINISTRATIVO DA POLÍCIA CIVIL DO DISTRITO FEDERAL')">
+                    <img src="/1.png" alt="PCDF" class="course-thumbnail">
                     <div class="course-info">
-                        <h3 class="course-title">Web Application Security</h3>
-                        <p class="course-description">Learn about common web vulnerabilities, SQL injection, XSS, and secure coding practices.</p>
+                        <h3 class="course-title">AGENTE ADMINISTRATIVO DA POLÍCIA CIVIL DO DISTRITO FEDERAL</h3>
+                        <p class="course-description">Pacote atualizado com a publicação do edital.</p>
                         <div class="course-progress">
                             <div class="progress-label-small">
                                 <span>Progress</span>
@@ -178,11 +297,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
                 
-                <div class="course-card" onclick="openCourseModal(2, 'Network Defense & Monitoring')">
-                    <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=200&fit=crop" alt="Network Security" class="course-thumbnail">
+                <div class="course-card" onclick="openCourseModal(2, 'SEFAZ/GO – Auditor')">
+                    <img src="/2.png" alt="SEFAZ" class="course-thumbnail">
                     <div class="course-info">
-                        <h3 class="course-title">Network Defense & Monitoring</h3>
-                        <p class="course-description">Master network security fundamentals, firewalls, IDS/IPS, and threat detection techniques.</p>
+                        <h3 class="course-title">SEFAZ/GO – Auditor</h3>
+                        <p class="course-description">Pacote atualizado com a publicação do edital.</p>
                         <div class="course-progress">
                             <div class="progress-label-small">
                                 <span>Progress</span>
@@ -195,11 +314,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
                 
-                <div class="course-card" onclick="openCourseModal(3, 'Network Fundamentals')">
-                    <img src="https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=400&h=200&fit=crop" alt="Networking" class="course-thumbnail">
+                <div class="course-card" onclick="openCourseModal(3, 'SEFAZ/GO – Auditor')">
+                    <img src="/3.png" alt="SEFAZ" class="course-thumbnail">
                     <div class="course-info">
-                        <h3 class="course-title">Network Fundamentals</h3>
-                        <p class="course-description">Understand networking protocols, OSI model, TCP/IP, routing, and network troubleshooting.</p>
+                        <h3 class="course-title">SEFAZ/GO – Auditor</h3>
+                        <p class="course-description">Pacote atualizado com a publicação do edital.</p>
                         <div class="course-progress">
                             <div class="progress-label-small">
                                 <span>Progress</span>
@@ -207,57 +326,6 @@ document.addEventListener('DOMContentLoaded', function() {
                             </div>
                             <div class="progress-bar">
                                 <div class="progress-fill" style="animation: fillProgress 2s ease-in-out 1.1s forwards; width: 85%;"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="course-card" onclick="openCourseModal(1, 'Linux System Administration')">
-                    <img src="https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=200&fit=crop" alt="Linux" class="course-thumbnail">
-                    <div class="course-info">
-                        <h3 class="course-title">Linux System Administration</h3>
-                        <p class="course-description">Master Linux command line, system administration, security hardening, and automation.</p>
-                        <div class="course-progress">
-                            <div class="progress-label-small">
-                                <span>Progress</span>
-                                <span>45%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="animation: fillProgress 2s ease-in-out 1.4s forwards; width: 45%;"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="course-card" onclick="openCourseModal(2, 'Incident Response & Forensics')">
-                    <img src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=400&h=200&fit=crop" alt="Forensics" class="course-thumbnail">
-                    <div class="course-info">
-                        <h3 class="course-title">Incident Response & Forensics</h3>
-                        <p class="course-description">Learn incident response procedures, digital forensics, and threat hunting methodologies.</p>
-                        <div class="course-progress">
-                            <div class="progress-label-small">
-                                <span>Progress</span>
-                                <span>30%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="animation: fillProgress 2s ease-in-out 1.7s forwards; width: 30%;"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="course-card" onclick="openCourseModal(3, 'Cloud Security Fundamentals')">
-                    <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=200&fit=crop" alt="Cloud Security" class="course-thumbnail">
-                    <div class="course-info">
-                        <h3 class="course-title">Cloud Security Fundamentals</h3>
-                        <p class="course-description">Explore cloud security principles, AWS/Azure security services, and cloud compliance frameworks.</p>
-                        <div class="course-progress">
-                            <div class="progress-label-small">
-                                <span>Progress</span>
-                                <span>90%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="animation: fillProgress 2s ease-in-out 2s forwards; width: 90%;"></div>
                             </div>
                         </div>
                     </div>

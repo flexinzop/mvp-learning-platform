@@ -8,25 +8,25 @@ app = FastAPI()
 courses = [
     {
         "id": 1,
-        "title": "Web Application Security",
-        "description": "Learn about common web vulnerabilities, SQL injection, XSS, and secure coding practices.",
-        "thumbnail": "https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=250&h=100&fit=crop",
+        "title": "Agente Administrativo da Polícia Civil do Distrito Federal - PCDF",
+        "description": "Com todas as matérias de conhecimentos básicos e específicos.",
+        "thumbnail": "/1.png",
         "progress": 75,
         "category": "offensive"
     },
     {
         "id": 2,
-        "title": "Network Defense & Monitoring",
-        "description": "Master network security fundamentals, firewalls, IDS/IPS, and threat detection techniques.",
-        "thumbnail": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=250&h=100&fit=crop",
+        "title": "Delegado da Polícia Federal",
+        "description": "Para aqueles que buscam o cargo de Delegado Federal, com formação em direito, com preparação completa de todas as matérias.",
+        "thumbnail": "/2.png",
         "progress": 60,
         "category": "defensive"
     },
     {
         "id": 3,
-        "title": "Network Fundamentals",
-        "description": "Understand networking protocols, OSI model, TCP/IP, routing, and network troubleshooting.",
-        "thumbnail": "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=250&h=100&fit=crop",
+        "title": "SEFAZ/GO – Auditor",
+        "description": "Pacote atualizado com a publicação do edital.",
+        "thumbnail": "/3.png",
         "progress": 85,
         "category": "general"
     }
@@ -81,7 +81,7 @@ async def get_courses():
     for c in courses:
         html += f'''
         <div class="course-card" data-category="{c["category"]}" onclick="openCourseModal({c["id"]}, '{c["title"]}')">
-          <img src="{c["thumbnail"]}" alt="{c["title"]}">
+          <img src="{c["thumbnail"]}" alt="{c["title"]}" class="course-thumbnail">
           <div class="course-info">
             <h3>{c["title"]}</h3>
             <p>{c["description"]}</p>

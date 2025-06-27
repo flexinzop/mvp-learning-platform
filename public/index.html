@@ -21,14 +21,14 @@
         <div class="navbar-content">
             <div class="navbar-left">
                 <div class="logo">
-                    <!-- <img 
+                    <img 
                       :src="darkMode 
                         ? 'logo-rodrigo-dark.png' 
                         : 'logo-rodrigo.png'" 
                       alt="Cardily Logo" 
-                      class="logo-img" /> -->
-                        <i class="fas fa-cube"></i>
-                        <span>Cardily</span>
+                      class="logo-img" />
+                        <!-- <i class="fas fa-cube"></i>
+                        <span>Cardily</span> -->
                 </div>
             </div>
             <!-- <button class="mobile-menu-toggle" @click="sidebarOpen = !sidebarOpen">
@@ -60,13 +60,13 @@
             </div>
 
             <nav class="sidebar-nav">
-                <a href="#" class="nav-item active">
+                <a href="#" class="nav-item" :class="{ 'active': currentPage === 'dashboard' }" x-on:click="goToDashboard()">
                     <i class="fas fa-home"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="#" class="nav-item">
+                <a href="#" class="nav-item" :class="{ 'active': currentPage === 'flashcards' }" x-on:click="goToFlashcards()">
                     <i class="fas fa-graduation-cap"></i>
-                    <span>Meus Cursos</span>
+                    <span>Meus Flashcards</span>
                 </a>
                 <a href="#" class="nav-item">
                     <i class="fas fa-book"></i>
@@ -76,7 +76,7 @@
                     <i class="fas fa-route"></i>
                     <span>Trilhas</span>
                 </a>
-                <a href="#" class="nav-item">
+                <a href="#" class="nav-item" :class="{ 'active': currentPage === 'statistics' }" x-on:click="goToStatistics()">
                     <i class="fas fa-flask"></i>
                     <span>Estatísticas</span>
                 </a>
@@ -96,7 +96,8 @@
 
         <!-- Main Content -->
         <main class="main-content">
-            <div class="dashboard">
+            <!-- Dashboard Page -->
+            <div class="dashboard" x-show="currentPage === 'dashboard'">
                 <h1 class="dashboard-title">Dashboard</h1>
 
                 <!-- Progress Indicators -->
@@ -112,8 +113,8 @@
                     </p>
                     <div class="welcome-body">
                         <p>Continue sua jornada rumo à aprovação. Cada revisão te deixa mais próximo do seu objetivo!</p>
-                        <button class="btn btn-primary" x-on:click="startReview()">
-                            Começar Revisão →
+                        <button class="btn btn-primary" x-on:click="goToFlashcards()">
+                            Ir para Flashcards →
                         </button>
                     </div>
                     <div class="welcome-footer">
@@ -137,6 +138,85 @@
                     </div>
                     <div class="courses-grid" hx-get="/api/courses" hx-trigger="load" hx-target="this" hx-swap="innerHTML">
                         <div class="loading">Loading courses...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Flashcards Page -->
+            <div class="flashcards-page" x-show="currentPage === 'flashcards'">
+                <h1 class="dashboard-title">Meus Flashcards</h1>
+                <div class="flashcards-content">
+                    <p>Escolha um curso para começar sua revisão:</p>
+                    
+                    <!-- Course Cards -->
+                    <div class="courses-section">
+                        <div class="search-container">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" placeholder="Search courses, topics..." class="search-input" />
+                        </div>
+                        <div class="courses-grid" hx-get="/api/courses" hx-trigger="load" hx-target="this" hx-swap="innerHTML">
+                            <div class="loading">Loading courses...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics Page -->
+            <div class="statistics-page" x-show="currentPage === 'statistics'">
+                <h1 class="dashboard-title">Estatísticas</h1>
+                
+                <div class="stats-grid">
+                    <!-- Course Completion Pie Chart -->
+                    <div class="stats-card">
+                        <h3>Progresso dos Cursos</h3>
+                        <div class="pie-chart-container">
+                            <canvas id="courseCompletionChart" width="300" height="300"></canvas>
+                        </div>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <span class="legend-color" style="background: #FF6B6B;"></span>
+                                <span>PCDF - 75%</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background: #4ECDC4;"></span>
+                                <span>Delegado PF - 60%</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background: #45B7D1;"></span>
+                                <span>SEFAZ/GO - 85%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Monthly Access Bar Chart -->
+                    <div class="stats-card">
+                        <h3>Acesso Mensal aos Flashcards</h3>
+                        <div class="bar-chart-container">
+                            <canvas id="monthlyAccessChart" width="400" height="300"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Summary Stats -->
+                    <div class="stats-card">
+                        <h3>Resumo Geral</h3>
+                        <div class="summary-stats">
+                            <div class="stat-item">
+                                <div class="stat-number">342</div>
+                                <div class="stat-label">Cards Revisados</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">7</div>
+                                <div class="stat-label">Dias Consecutivos</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">73%</div>
+                                <div class="stat-label">Taxa de Acerto</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">15</div>
+                                <div class="stat-label">Cards Pendentes</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
